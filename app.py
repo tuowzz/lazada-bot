@@ -14,6 +14,7 @@ LAZADA_APP_SECRET = os.getenv("LAZADA_APP_SECRET")
 LAZADA_ACCESS_TOKEN = os.getenv("LAZADA_ACCESS_TOKEN")
 LAZADA_REFRESH_TOKEN = os.getenv("LAZADA_REFRESH_TOKEN")
 LAZADA_AFFILIATE_ID = os.getenv("LAZADA_AFFILIATE_ID")
+LAZADA_USER_TOKEN = os.getenv("LAZADA_USER_TOKEN")  # 🔹 เพิ่ม userToken
 
 # ✅ LINE Bot Credentials
 LINE_ACCESS_TOKEN = os.getenv("LINE_ACCESS_TOKEN")
@@ -67,7 +68,8 @@ def get_lazada_affiliate_link(product_id):
         "v": "1.0",
         "inputType": "productid",
         "inputValue": product_id,
-        "tracking_id": LAZADA_AFFILIATE_ID
+        "tracking_id": LAZADA_AFFILIATE_ID,
+        "userToken": LAZADA_USER_TOKEN  # 🔹 เพิ่ม userToken ที่ขาดหายไป
     }
     signature = generate_signature(api_path, params)
     params["sign"] = signature
