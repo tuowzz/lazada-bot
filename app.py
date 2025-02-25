@@ -66,10 +66,10 @@ def get_lazada_affiliate_link(product_id):
         "access_token": LAZADA_ACCESS_TOKEN,
         "format": "JSON",
         "v": "1.0",
-        "inputType": "productid",
+        "inputType": "productid",  # 🔹 แก้ไขให้ส่ง inputType
         "inputValue": product_id,
         "tracking_id": LAZADA_AFFILIATE_ID,
-        "userToken": LAZADA_USER_TOKEN  # 🔹 เพิ่ม userToken ที่ขาดหายไป
+        "userToken": LAZADA_USER_TOKEN  # 🔹 เพิ่ม userToken
     }
     signature = generate_signature(api_path, params)
     params["sign"] = signature
@@ -82,7 +82,7 @@ def get_lazada_affiliate_link(product_id):
             return get_lazada_affiliate_link(product_id)  # รีลองหลังจาก Refresh Token
         return None
 
-    return response["data"]["aff_link"] if "data" in response else None
+    return response["result"]["data"]["aff_link"] if response["result"]["success"] else None
 
 # ✅ ฟังก์ชันส่งข้อความไป LINE
 def send_line_message(reply_token, message):
