@@ -12,7 +12,7 @@ app = Flask(__name__)
 LAZADA_APP_KEY = os.getenv("LAZADA_APP_KEY")
 LAZADA_APP_SECRET = os.getenv("LAZADA_APP_SECRET")
 LAZADA_ACCESS_TOKEN = os.getenv("LAZADA_ACCESS_TOKEN")
-LAZADA_REFRESH_TOKEN = os.getenv("LAZADA_REFRESH_TOKEN")  # ใช้รีเฟรช Access Token
+LAZADA_REFRESH_TOKEN = os.getenv("LAZADA_REFRESH_TOKEN")
 LAZADA_AFFILIATE_ID = os.getenv("LAZADA_AFFILIATE_ID")
 
 # ✅ LINE Bot Credentials
@@ -22,10 +22,10 @@ LINE_ACCESS_TOKEN = os.getenv("LINE_ACCESS_TOKEN")
 def debug_log(message):
     print(f"🛠 DEBUG: {message}")
 
-# ✅ ฟังก์ชันสร้าง Signature สำหรับ Lazada API
-def generate_signature(params):
-    sorted_params = sorted(params.items(), key=lambda x: x[0])
-    base_string = "&".join(f"{k}={urllib.parse.quote(str(v))}" for k, v in sorted_params)
+# ✅ ฟังก์ชันสร้าง Signature ที่ถูกต้องสำหรับ Lazada API
+def generate_signature(api_path, params):
+    sorted_params = sorted(params.items(), key=lambda x: x[0])  # เรียงลำดับพารามิเตอร์
+    base_string = api_path + "".join(f"{k}{v}" for k, v in sorted_params)
     signature = hmac.new(
         LAZADA_APP_SECRET.encode(), base_string.encode(), hashlib.sha256
     ).hexdigest().upper()
@@ -42,8 +42,9 @@ def refresh_lazada_token():
         "grant_type": "refresh_token",
         "refresh_token": LAZADA_REFRESH_TOKEN
     }
-    params["sign"] = generate_signature(params)
-    
+    signature = generate_signature("/rest/token", params)
+    params["sign"] = signature
+
     response = requests.post(url, data=params).json()
     debug_log(f"Lazada Refresh Token Response: {response}")
 
@@ -55,7 +56,8 @@ def refresh_lazada_token():
 # ✅ ฟังก์ชันดึงลิงก์ Affiliate ของ Lazada
 def get_lazada_affiliate_link(product_id):
     global LAZADA_ACCESS_TOKEN
-    url = "https://api.lazada.co.th/rest/marketing/getlink"
+    api_path = "/marketing/getlink"
+    url = f"https://api.lazada.co.th/rest{api_path}"
     params = {
         "app_key": LAZADA_APP_KEY,
         "timestamp": str(int(time.time() * 1000)),
@@ -67,7 +69,8 @@ def get_lazada_affiliate_link(product_id):
         "inputValue": product_id,
         "tracking_id": LAZADA_AFFILIATE_ID
     }
-    params["sign"] = generate_signature(params)
+    signature = generate_signature(api_path, params)
+    params["sign"] = signature
 
     response = requests.get(url, params=params).json()
     debug_log(f"Lazada Get Link Response: {response}")
