@@ -6,7 +6,7 @@ import requests
 import urllib.parse
 import json
 from flask import Flask, request, jsonify
-import lazop
+from lazop import Client as lazopClient
 
 app = Flask(__name__)
 
